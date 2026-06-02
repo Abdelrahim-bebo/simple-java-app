@@ -30,7 +30,7 @@ pipeline {
         stage('Push DockerHub') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: '1122334455', passwordVariable: 'Bebo20010873Bebo', usernameVariable: 'abdelrahimbebo')]) {
+                    withCredentials([usernamePassword(credentialsId: '1122334455', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
                         sh 'docker login --username $Username --password $Password'
                         sh 'docker tag java-app $Username/java-app:${env.BUILD_NUMBER}'
                         sh 'docker tag java-app $Username/java-app:latest'
