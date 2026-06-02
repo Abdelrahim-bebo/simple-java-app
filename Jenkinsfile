@@ -1,34 +1,41 @@
-pipeline{
-    agent{
-        label 'aws-agent'
+pipeline {
+    agent any 
+
+    tools {
+        maven 'maven-3' 
+        jdk 'jdk-11'
     }
-    stages{
-        stage('build'){
-            steps{
-                script{
+
+    stages {
+        stage('Build App') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                script {
                     sh 'docker build -t java-app .'
                 }
             }
         }
 
-        stage('push'){
-            steps{
-                script{
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'Password', usernameVariable: 'Username')]) {
-                    sh 'docker login --username $Username --password $Password'
-                    sh 'docker tag java-app $Username/java-app'
-                    sh 'docker push $Username/java-app'
-                    }
-                }
-            }
-        }
-
-        stage('deploy'){
-            steps{
-                script{
-                    withAWS(credentials: 'aws-cli', region: 'us-east-2') {
-                    sh 'aws eks update-kubeconfig --region us-east-2 --name eks'
-                    sh 'kubectl apply -f ./k8s/deployment.yaml'
+        stage('Push DockerHub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: '1122334455', passwordVariable: 'Bebo20010873Bebo', usernameVariable: 'abdelrahimbebo')]) {
+                        sh 'docker login --username $Username --password $Password'
+                        sh 'docker tag java-app $Username/java-app:${env.BUILD_NUMBER}'
+                        sh 'docker tag java-app $Username/java-app:latest'
+                        sh 'docker push $Username/java-app:${env.BUILD_NUMBER}'
+                        sh 'docker push $Username/java-app:latest'
                     }
                 }
             }
