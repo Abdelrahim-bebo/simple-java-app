@@ -31,11 +31,14 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: '1122334455', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
-                        sh 'docker login --username $Username --password $Password'
-                        sh 'docker tag java-app $Username/java-app:${env.BUILD_NUMBER}'
-                        sh 'docker tag java-app $Username/java-app:latest'
-                        sh 'docker push $Username/java-app:${env.BUILD_NUMBER}'
-                        sh 'docker push $Username/java-app:latest'
+                        
+                        sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+                        
+                        sh 'docker tag java-app $DOCKER_USER/java-app:${BUILD_NUMBER}'
+                        sh 'docker tag java-app $DOCKER_USER/java-app:latest'
+                        
+                        sh 'docker push $DOCKER_USER/java-app:${BUILD_NUMBER}'
+                        sh 'docker push $DOCKER_USER/java-app:latest'
                     }
                 }
             }
